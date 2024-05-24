@@ -1,24 +1,17 @@
 TARGET = stage2
-OBJS = start.o stage2.o
 
-CC = gcc
-OBJCOPY = objcopy
-CFLAGS = -DSMP -isystem ../freebsd-headers/include -Wl,--build-id=none -Os -fno-stack-protector -fpic -fpie
-LDFLAGS = -T linker.ld -nostartfiles -nostdlib
+NASM = nasm
 
-ifneq ($(filter $(FW), 700 701 702 750 751 755 800 801 803 850 852 900 903 904 950 951 960 1000 1001 1050 1070 1071 1100),)
-CFLAGS += -DFIRMWARE=$(FW)
+ifneq ($(filter $(FW), 1000 1001 1100),)
+NASMFLAGS = -DFIRMWARE=$(FW)
 else
 $(error "Invalid firmware")
 endif
 
-all: $(TARGET).bin
+all: $(TARGET)
 
-%.bin: %.elf
-	$(OBJCOPY) -S -O binary $^ $@
-
-$(TARGET).elf: $(OBJS)
-	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
+%: %.nasm
+	$(NASM) $(NASMFLAGS) -f bin $^
 
 clean:
-	@rm -f $(TARGET).bin $(TARGET).elf $(OBJS)
+	@rm -f $(TARGET)

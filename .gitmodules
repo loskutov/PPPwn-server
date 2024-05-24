@@ -1,3 +1,7 @@
 [submodule "freebsd-headers"]
 	path = freebsd-headers
 	url = https://github.com/OpenOrbis/freebsd-headers
+[submodule "python_pppd"]
+	path = python_pppd
+	url = https://github.com/loskutov/python-pppd
+	branch = patch-1

@@ -169,3 +169,24 @@ The code will not compile on Apple Silicon and requires AMD64 architecture.
 There is a workaround using docker which will build the bin files required.
 Clone this repository to your mac system, then from the repo folder run `./build-macarm.sh`. This will build the binaries for PS4 FW 1100 and place the necessary files into the correct folders. To build the binaries for a different version, i.e. 900, run the command as such: `./build-macarm.sh 900`. Once built, copy this folder structure into the Linux VM and execute as instructed above.
 This has been tested using VMware Fusion 13.5.1, with the VM Guest as Ubuntu 24.04, and the host machine is MacOS 14.4.1
+
+## PPPwn-server usage
+This fork has modified pppwn.py, which is looped and attempts to act as a normal PPPoE server (pppd is used so it's Linux-only) when the client is a PPPwned PS4,
+and a stage2 that patches the kernel to supply a different Host-Uniq header so that the pppwn.py is able to know it's PPPwned.
+
+However, this stage2 is not self-contained, and the intended usage is to prepend it to the actual stage2 payload you are interested in. E.g.:
+
+```
+cd stage2
+make FW=1000
+cat stage2 stage2_10.00.bin > stage2.bin
+```
+
+In order to assemble the payload, you need to have nasm installed.
+
+Then, run the exploit as usual.
+
+If the PPPoE connection succeeds, you will have a new interface (probably named `ppp0`) connecting you (IP 10.0.0.1) to your PS4 (IP 10.67.15.1).
+These IP addresses were simply taken from the default values of pppoe-server.
+
+At this moment, the stage2 only supports 10.0x and 11.00.

