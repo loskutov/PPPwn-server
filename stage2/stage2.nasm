@@ -60,8 +60,9 @@ entry:
     or  rax, rdx
 
     mov rdx, cr0
-    and rdx, ~X86_CR0_WP
-    mov cr0, rdx
+    mov rcx, rdx
+    and rcx, ~X86_CR0_WP
+    mov cr0, rcx
 
     cld
 
