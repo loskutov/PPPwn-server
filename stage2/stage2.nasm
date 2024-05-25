@@ -26,13 +26,13 @@ addr_patch_padi equ 0xffffffff8262b494
 addr_len1       equ 0xffffffff8262b3ad
 addr_patch_padr equ 0xffffffff8262bc79
 addr_len4       equ 0xffffffff8262bb6a
-addr_len7       equ 0xffffffff8262c294
+addr_len7       equ 0xffffffff8262c293
 %elif FIRMWARE == 1000 || FIRMWARE == 1001
 addr_patch_padi equ 0xffffffff824af084
 addr_len1       equ 0xffffffff824aef9d
 addr_patch_padr equ 0xffffffff824af869
 addr_len4       equ 0xffffffff824af75a
-addr_len7       equ 0xffffffff824afe84
+addr_len7       equ 0xffffffff824afe83
 %else
 %error "unsupported FW"
 %endif
