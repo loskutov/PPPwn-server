@@ -27,6 +27,12 @@ addr_len1       equ 0xffffffff8262b3ad
 addr_patch_padr equ 0xffffffff8262bc79
 addr_len4       equ 0xffffffff8262bb6a
 addr_len7       equ 0xffffffff8262c293
+%elif FIRMWARE == 1050
+addr_patch_padi equ 0xffffffff8242fb04
+addr_len1       equ 0xffffffff8242fa1d
+addr_patch_padr equ 0xffffffff824302e9
+addr_len4       equ 0xffffffff824301da
+addr_len7       equ 0xffffffff82430903
 %elif FIRMWARE == 1000 || FIRMWARE == 1001
 addr_patch_padi equ 0xffffffff824af084
 addr_len1       equ 0xffffffff824aef9d
