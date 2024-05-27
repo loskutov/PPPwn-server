@@ -39,6 +39,12 @@ addr_len1       equ 0xffffffff824aef9d
 addr_patch_padr equ 0xffffffff824af869
 addr_len4       equ 0xffffffff824af75a
 addr_len7       equ 0xffffffff824afe83
+%elif FIRMWARE == 900
+addr_patch_padi equ 0xffffffff824555c4
+addr_len1       equ 0xffffffff824554dd
+addr_patch_padr equ 0xffffffff82455da9
+addr_len4       equ 0xffffffff82455c9a
+addr_len7       equ 0xffffffff824563c3
 %else
 %error "unsupported FW"
 %endif

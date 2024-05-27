@@ -189,4 +189,4 @@ Then, run the exploit as usual.
 If the PPPoE connection succeeds, you will have a new interface (probably named `ppp0`) connecting you (IP 10.0.0.1) to your PS4 (IP 10.67.15.1).
 These IP addresses were simply taken from the default values of pppoe-server.
 
-At this moment, the stage2 only supports 10.0x and 11.00.
+At this moment, the stage2 only supports 9.00, 10.0x, 10.50, and 11.00.
