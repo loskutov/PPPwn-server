@@ -45,6 +45,12 @@ addr_len1       equ 0xffffffff824554dd
 addr_patch_padr equ 0xffffffff82455da9
 addr_len4       equ 0xffffffff82455c9a
 addr_len7       equ 0xffffffff824563c3
+%elif FIRMWARE == 700 || FIRMWARE == 701 || FIRMWARE == 702
+addr_patch_padi equ 0xffffffff8c3ca3bd
+addr_len1       equ 0xffffffff8c3ca2dd
+addr_patch_padr equ 0xffffffff8c3caba0
+addr_len4       equ 0xffffffff8c3caa89
+addr_len7       equ 0xffffffff8c3cb18d
 %else
 %error "unsupported FW"
 %endif
